@@ -1,7 +1,7 @@
 package wlans
 
-// Config ...
-type Config struct {
+// WLAN ...
+type WLAN struct {
 	Name             string   `json:"profile-name"`
 	ID               int      `json:"wlan-id"`
 	AuthKeyMgmtPSK   bool     `json:"auth-key-mgmt-psk"`

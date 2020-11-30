@@ -16,8 +16,17 @@ func NewService(req *requests.Service) *Service {
 	return &Service{http: req}
 }
 
+// NewWlan ...
+func NewWlan() {}
+
+// NewPolicyProfile ...
+func NewPolicyProfile() {}
+
+// NewPolicyTag ...
+func NewPolicyTag() {}
+
 // Get ...
-func (s *Service) Get() ([]Config, error) {
+func (s *Service) Get() ([]WLAN, error) {
 	uri := "/Cisco-IOS-XE-wireless-wlan-cfg:wlan-cfg-data/wlan-cfg-entries/wlan-cfg-entry"
 	req, err := s.http.GenerateRequest(uri, "GET", nil)
 	if err != nil {
@@ -29,7 +38,7 @@ func (s *Service) Get() ([]Config, error) {
 	}
 	defer res.Body.Close()
 	type resp struct {
-		Response []Config `json:"Cisco-IOS-XE-wireless-wlan-cfg:wlan-cfg-entry"`
+		Response []WLAN `json:"Cisco-IOS-XE-wireless-wlan-cfg:wlan-cfg-entry"`
 	}
 	var cResp resp
 	json.NewDecoder(res.Body).Decode(&cResp)
