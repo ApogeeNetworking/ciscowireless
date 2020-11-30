@@ -3,6 +3,7 @@ package ciscowireless
 import (
 	"github.com/ApogeeNetworking/ciscowireless/accesspoints"
 	"github.com/ApogeeNetworking/ciscowireless/requests"
+	"github.com/ApogeeNetworking/ciscowireless/sites"
 	"github.com/ApogeeNetworking/ciscowireless/wlans"
 )
 
@@ -10,6 +11,7 @@ import (
 type Service struct {
 	AccessPoints *accesspoints.Service
 	Wlans        *wlans.Service
+	Sites        *sites.Service
 }
 
 // NewService ...
@@ -18,5 +20,6 @@ func NewService(host, user, pass string, insecureSSL bool) *Service {
 	return &Service{
 		AccessPoints: accesspoints.NewService(req),
 		Wlans:        wlans.NewService(req),
+		Sites:        sites.NewService(req),
 	}
 }
