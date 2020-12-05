@@ -41,6 +41,42 @@ func (s *Service) getWtpMac(ethMac string) (string, error) {
 	return resp.Response.WtpMac, nil
 }
 
+// GetApSummary ...
+func (s *Service) GetApSummary() ([]Ap, error) {
+	uri := "/openconfig-ap-manager:joined-aps/joined-ap"
+	req, err := s.http.GenerateRequest(uri, "GET", nil)
+	if err != nil {
+		return nil, err
+	}
+	res, err := s.http.MakeRequest(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	resp := struct {
+		Response []struct {
+			Hostname string `json:"hostname"`
+			State    struct {
+				MacAddr string `json:"mac"`
+				Serial  string `json:"serial"`
+				Model   string `json:"model"`
+				IPAddr  string `json:"ipv4"`
+			} `json:"state"`
+		} `json:"openconfig-ap-manager:joined-ap"`
+	}{}
+	json.NewDecoder(res.Body).Decode(&resp)
+	var aps []Ap
+	for _, rAp := range resp.Response {
+		aps = append(aps, Ap{
+			Name:    rAp.Hostname,
+			MacAddr: rAp.State.MacAddr,
+			Serial:  rAp.State.Serial,
+			Model:   rAp.State.Model,
+		})
+	}
+	return aps, nil
+}
+
 // GetOne ...
 func (s *Service) GetOne(macAddr string) (Ap, error) {
 	// the mac address needed is the WTP Radio MAC Address
