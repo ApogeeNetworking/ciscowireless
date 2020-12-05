@@ -17,11 +17,42 @@ func NewService(req *requests.Service) *Service {
 	return &Service{http: req}
 }
 
+func (s *Service) getWtpMac(ethMac string) (string, error) {
+	uri := fmt.Sprintf(
+		"/Cisco-IOS-XE-wireless-access-point-oper:access-point-oper-data/ethernet-mac-wtp-mac-map=%s",
+		ethMac,
+	)
+	req, err := s.http.GenerateRequest(uri, "GET", nil)
+	if err != nil {
+		return "", err
+	}
+	res, err := s.http.MakeRequest(req)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+	resp := struct {
+		Response struct {
+			EthMac string `json:"ethernet-mac"`
+			WtpMac string `json:"wtp-mac"`
+		} `json:"Cisco-IOS-XE-wireless-access-point-oper:ethernet-mac-wtp-mac-map"`
+	}{}
+	json.NewDecoder(res.Body).Decode(&resp)
+	return resp.Response.WtpMac, nil
+}
+
 // GetOne ...
 func (s *Service) GetOne(macAddr string) (Ap, error) {
+	// the mac address needed is the WTP Radio MAC Address
+	// however, we are receiving the Eth MAC so first we have
+	// to take the Eth MAC to find the WTP MAC
+	wtpMac, err := s.getWtpMac(macAddr)
+	if err != nil {
+		return Ap{}, err
+	}
 	uri := fmt.Sprintf(
 		"/Cisco-IOS-XE-wireless-access-point-oper:access-point-oper-data/capwap-data=%s",
-		macAddr,
+		wtpMac,
 	)
 	req, err := s.http.GenerateRequest(uri, "GET", nil)
 	if err != nil {
@@ -43,7 +74,7 @@ func (s *Service) GetOne(macAddr string) (Ap, error) {
 	json.NewDecoder(res.Body).Decode(&cResp)
 	ap := Ap{
 		Name:    cResp.Response.Name,
-		MacAddr: cResp.Response.Mac,
+		MacAddr: cResp.Response.Detail.Info.Board.MacAddr,
 		Serial:  cResp.Response.Detail.Info.Board.Serial,
 		Model:   cResp.Response.Detail.Info.Model.Model,
 		Tag: ApTag{
@@ -78,7 +109,7 @@ func (s *Service) Get() ([]Ap, error) {
 	for _, capWap := range cResp.Response {
 		aps = append(aps, Ap{
 			Name:    capWap.Name,
-			MacAddr: capWap.Mac,
+			MacAddr: capWap.Detail.Info.Board.MacAddr,
 			IPAddr:  capWap.IPAddr,
 			Serial:  capWap.Detail.Info.Board.Serial,
 			Model:   capWap.Detail.Info.Model.Model,
@@ -153,6 +184,27 @@ func (s *Service) GetTagsFromAp(macAddr string) (ApTagCfg, error) {
 	var r resp
 	json.NewDecoder(res.Body).Decode(&r)
 	return r.TagResp, nil
+}
+
+// UpdateApTagCfg ...
+func (s *Service) UpdateApTagCfg(tagCfg ApTagCfg) (status int, err error) {
+	uri := "/Cisco-IOS-XE-wireless-ap-cfg:ap-cfg-data/ap-tags/ap-tag"
+	reqBody := struct {
+		Cfg ApTagCfg `json:"Cisco-IOS-XE-wireless-ap-cfg:ap-tag"`
+	}{Cfg: tagCfg}
+	body, err := s.http.CreateReqBody(&reqBody)
+	if err != nil {
+		return 0, err
+	}
+	req, err := s.http.GenerateRequest(uri, "PATCH", body)
+	if err != nil {
+		return 0, err
+	}
+	res, err := s.http.MakeRequest(req)
+	if err != nil {
+		return 0, fmt.Errorf("unable to make request: %s", err)
+	}
+	return res.StatusCode, nil
 }
 
 // BulkUpdateTagCfg ...
