@@ -43,7 +43,6 @@ type ApTagCfg struct {
 }
 
 type capWapResp struct {
-	Mac     string             `json:"wtp-mac"`
 	Name    string             `json:"name"`
 	IPAddr  string             `json:"ip-addr"`
 	Detail  capWapDeviceDetail `json:"device-detail"`
@@ -57,7 +56,8 @@ type capWapInfo struct {
 	Model capWapModel `json:"ap-models"`
 }
 type capWapBoard struct {
-	Serial string `json:"wtp-serial-num"`
+	Serial  string `json:"wtp-serial-num"`
+	MacAddr string `json:"wtp-enet-mac"`
 }
 type capWapModel struct {
 	Model string `json:"model"`
