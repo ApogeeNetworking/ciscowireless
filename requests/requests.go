@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -58,5 +59,12 @@ func (s *Service) CreateReqBody(v interface{}) (*bytes.Reader, error) {
 
 // MakeRequest ...
 func (s *Service) MakeRequest(req *http.Request) (*http.Response, error) {
+	resp, err := s.http.Do(req)
+	if err != nil {
+		return resp, err
+	}
+	if resp.StatusCode == 401 {
+		return resp, errors.New(resp.Status)
+	}
 	return s.http.Do(req)
 }

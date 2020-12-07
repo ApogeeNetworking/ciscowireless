@@ -99,10 +99,6 @@ func (s *Service) GetOne(macAddr string) (ciscotypes.Ap, error) {
 	if err != nil {
 		return ciscotypes.Ap{}, fmt.Errorf("unable to make request: %s", err)
 	}
-	if res.StatusCode == 401 {
-		fmt.Println(res.Status)
-		return s.GetOne(macAddr)
-	}
 	defer res.Body.Close()
 	resp := struct {
 		Response capWapResp `json:"Cisco-IOS-XE-wireless-access-point-oper:capwap-data"`
