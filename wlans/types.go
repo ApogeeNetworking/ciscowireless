@@ -3,6 +3,7 @@ package wlans
 // WLAN ...
 type WLAN struct {
 	Name             string   `json:"profile-name"`
+	Description      string   `json:"description"`
 	ID               int      `json:"wlan-id"`
 	AuthKeyMgmtPSK   bool     `json:"auth-key-mgmt-psk"`
 	AuthKeyMgmtDot1x bool     `json:"auth-key-mgmt-dot1x"`
