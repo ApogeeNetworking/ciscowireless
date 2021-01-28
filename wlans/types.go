@@ -2,15 +2,16 @@ package wlans
 
 // WLAN ...
 type WLAN struct {
-	Name             string   `json:"profile-name"`
-	Description      string   `json:"description"`
-	ID               int      `json:"wlan-id"`
+	Name        string `json:"profile-name"`
+	Description string `json:"description"`
+	ID          int    `json:"wlan-id"`
+	// Default: true
+	SecurityWPA      bool     `json:"security-wpa"`
 	AuthKeyMgmtPSK   bool     `json:"auth-key-mgmt-psk"`
 	AuthKeyMgmtDot1x bool     `json:"auth-key-mgmt-dot1x"`
 	PSK              string   `json:"psk,omitempty"`
 	MacFilterList    string   `json:"mac-filtering-list,omitempty"`
 	AuthList         string   `json:"authentication-list"`
-	SecurityWPA      bool     `json:"security-wpa"`
 	WPA2Enabled      bool     `json:"wpa2-enabled"`
 	WPA2AES          bool     `json:"wpa2-aes"`
 	RadioPolicy      string   `json:"radio-policy"`
