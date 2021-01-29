@@ -53,6 +53,9 @@ func (s *Service) GetClientCountBySSID(ssid string) (string, int) {
 			break
 		}
 	}
+	if wlan == nil {
+		return ssid, 0
+	}
 	cls, _ := s.Clients.Get()
 
 	var count int
