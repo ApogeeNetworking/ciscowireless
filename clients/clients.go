@@ -76,10 +76,10 @@ func (s *Service) Get() ([]Client, error) {
 // Traffic ...
 type Traffic struct {
 	MacAddr   string `json:"ms-mac-address"`
-	BytesRx   int64  `json:"bytes-rx"`
-	BytesTx   int64  `json:"bytes-tx"`
-	PacketsRx int64  `json:"pkts-rx"`
-	PacketsTx int64  `json:"pkts-tx"`
+	BytesRx   string `json:"bytes-rx"`
+	BytesTx   string `json:"bytes-tx"`
+	PacketsRx string `json:"pkts-rx"`
+	PacketsTx string `json:"pkts-tx"`
 	RSSI      int    `json:"most-recent-rssi"`
 	SNR       int    `json:"most-recent-snr"`
 	Speed     int    `json:"speed"`
