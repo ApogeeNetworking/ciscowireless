@@ -2,6 +2,7 @@ package clients
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/ApogeeNetworking/ciscowireless/requests"
@@ -67,6 +68,37 @@ func (s *Service) Get() ([]Client, error) {
 	defer res.Body.Close()
 	resp := struct {
 		Response []Client `json:"Cisco-IOS-XE-wireless-client-oper:common-oper-data"`
+	}{}
+	json.NewDecoder(res.Body).Decode(&resp)
+	return resp.Response, nil
+}
+
+// Traffic ...
+type Traffic struct {
+	MacAddr   string `json:"ms-mac-address"`
+	BytesRx   int64  `json:"bytes-rx"`
+	BytesTx   int64  `json:"bytes-tx"`
+	PacketsRx int64  `json:"pkts-rx"`
+	PacketsTx int64  `json:"pkts-tx"`
+	RSSI      int    `json:"most-recent-rssi"`
+	SNR       int    `json:"most-recent-snr"`
+	Speed     int    `json:"speed"`
+}
+
+// GetClientStats ...
+func (s *Service) GetClientStats(mac string) (Traffic, error) {
+	uri := fmt.Sprintf("/Cisco-IOS-XE-wireless-client-oper:client-oper-data/traffic-stats=%s", mac)
+	req, err := s.http.GenerateRequest(uri, "GET", nil)
+	if err != nil {
+		return Traffic{}, err
+	}
+	res, err := s.http.MakeRequest(req)
+	if err != nil {
+		return Traffic{}, err
+	}
+	defer res.Body.Close()
+	resp := struct {
+		Response Traffic `json:"Cisco-IOS-XE-wireless-client-oper:traffic-stats"`
 	}{}
 	json.NewDecoder(res.Body).Decode(&resp)
 	return resp.Response, nil
