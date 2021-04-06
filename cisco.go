@@ -1,6 +1,8 @@
 package ciscowireless
 
 import (
+	"strings"
+
 	"github.com/ApogeeNetworking/ciscowireless/accesspoints"
 	"github.com/ApogeeNetworking/ciscowireless/clients"
 	"github.com/ApogeeNetworking/ciscowireless/requests"
@@ -9,6 +11,8 @@ import (
 	"github.com/ApogeeNetworking/ciscowireless/ssh"
 	"github.com/ApogeeNetworking/ciscowireless/wlans"
 )
+
+var toLower = strings.ToLower
 
 // Service ...
 type Service struct {
@@ -44,11 +48,14 @@ func jsonContains(keys []string, value string) bool {
 
 // GetClientCountBySSID ...
 func (s *Service) GetClientCountBySSID(ssid string) (string, int) {
+	ssid = toLower(ssid)
+
 	wls, _ := s.Wlans.Get()
 
 	var wlan *wlans.WLAN
 	for _, wl := range wls {
-		if wl.Info.Name == ssid {
+		reqSSID := toLower(wl.Info.Name)
+		if reqSSID == ssid {
 			wlan = &wl
 			break
 		}
