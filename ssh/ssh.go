@@ -38,7 +38,10 @@ func NewService(host, user, pass, enablePass string) *Service {
 // SetApName ...
 func (s *Service) SetApName(oldName, newName string) {
 	cmd := fmt.Sprintf("ap name %s name %s", oldName, newName)
-	s.SendCmd(cmd)
+	output, _ := s.SendCmd(cmd)
+	if contains(output, "No connections to Shell Manager") {
+		s.SetApName(oldName, newName)
+	}
 }
 
 // GetApCdp ...
@@ -46,7 +49,7 @@ func (s *Service) GetApCdp(apName string) ciscotypes.ApCdp {
 	cmd := fmt.Sprintf("sh ap name %s cdp neighbor detail", apName)
 	output, _ := s.SendCmd(cmd)
 	// Workaround for Cisco BugID: CSCvp81958
-	erstr := "% No connections to Shell Manager available"
+	erstr := "No connections to Shell Manager"
 	if contains(output, erstr) {
 		time.Sleep(250 * time.Millisecond)
 		return s.GetApCdp(apName)
